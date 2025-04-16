@@ -138,6 +138,7 @@ import anySpaceSpace6 from 'assets/spaces/any-space-6.jpg?w=1150;2300&format=jpg
 import anySpaceSpace7 from 'assets/spaces/any-space-7.jpg?w=1150;2300&format=jpg&as=srcset&dpr=1;2'
 // @ts-expect-error: img
 import anySpaceSpace8 from 'assets/spaces/any-space-8.jpg?w=1150;2300&format=jpg&as=srcset&dpr=1;2'
+import { trackEvent } from './analytics'
 
 const Button =
   'sans-serif border border-gray-800 px-6 py-2 text-gray-700 bg-white tracking-wider inline-flex gap-2 text-sm uppercase items-center hover:bg-gray-100 transition-colors justify-center whitespace-nowrap'
@@ -272,15 +273,35 @@ const Header = () => {
               )}
             </Fragment>
           ))}
-          <a href="#contact" className={`${Button} ml-2 px-4 font-bold`}>
+          <a
+            href="#contact"
+            className={`${Button} ml-2 px-4 font-bold`}
+            onClick={() => {
+              trackEvent('book_estimate_clicked')
+              setMenuOpen(false)
+            }}
+          >
             <span className="hidden lg:block">Book your</span> Estimate
           </a>
           <div className="hidden gap-2 xl:flex">
-            <a href={FACEBOOK_URL} target="_blank" rel="noreferrer">
+            <a
+              href={FACEBOOK_URL}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() =>
+                trackEvent('social_clicked', { platform: 'facebook' })
+              }
+            >
               <img src={facebook} alt="Facebook" />
             </a>
             <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">
-              <img src={instagram} alt="Instagram" />
+              <img
+                src={instagram}
+                alt="Instagram"
+                onClick={() =>
+                  trackEvent('social_clicked', { platform: 'instagram' })
+                }
+              />
             </a>
           </div>
         </nav>
@@ -348,7 +369,10 @@ const Header = () => {
             <div className="flex gap-2">
               <a
                 href={FACEBOOK_URL}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false)
+                  trackEvent('social_clicked', { platform: 'facebook' })
+                }}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -356,7 +380,10 @@ const Header = () => {
               </a>
               <a
                 href={INSTAGRAM_URL}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false)
+                  trackEvent('social_clicked', { platform: 'instagram' })
+                }}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -413,13 +440,22 @@ const Hero = () => (
           </div>
         </div>
         <div className="flex max-w-3xl justify-between gap-8 px-8 pt-4 md:justify-around md:px-12 xl:pl-24">
-          <a href="#about" className={`${ButtonLarge} flex-1 font-bold`}>
+          <a
+            href="#about"
+            className={`${ButtonLarge} flex-1 font-bold`}
+            onClick={() => {
+              trackEvent('learn_more_clicked')
+            }}
+          >
             Learn More
             <img src={arrowDown} alt="Down arrow" width="24" />
           </a>
           <a
             href="#contact"
             className={`${ButtonLargeSecondary} hidden flex-1 border-0 md:block`}
+            onClick={() => {
+              trackEvent('book_estimate_clicked')
+            }}
           >
             Book Your Estimate
           </a>
@@ -723,7 +759,13 @@ const Space = ({
 
           <button
             className="absolute bottom-4 left-4 rounded-full bg-white p-2 md:bottom-12"
-            onClick={() => scrollToImage(containerRef.current, 'prev')}
+            onClick={() => {
+              scrollToImage(containerRef.current, 'prev')
+              trackEvent('click-image-arrow', {
+                direction: 'previous',
+                space_type: title
+              })
+            }}
             aria-label="Scroll to previous image"
             disabled={!canScrollPrev}
           >
@@ -738,7 +780,13 @@ const Space = ({
           </button>
           <button
             className="absolute bottom-4 right-4 rounded-full bg-white p-2 md:bottom-12"
-            onClick={() => scrollToImage(containerRef.current, 'next')}
+            onClick={() => {
+              scrollToImage(containerRef.current, 'next')
+              trackEvent('click-image-arrow', {
+                direction: 'previous',
+                space_type: title
+              })
+            }}
             aria-label="Scroll to next image"
             disabled={!canScrollNext}
           >
@@ -1020,7 +1068,13 @@ const Question = ({
     <div className="mt-4">
       <h3
         className="mb-4 inline-flex cursor-pointer font-light text-gray-600 hover:underline sm:text-lg"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen)
+          trackEvent('faq_clicked', {
+            question: title,
+            is_open: !isOpen
+          })
+        }}
         tabIndex={-1}
       >
         <div>{title}</div>
@@ -1114,6 +1168,10 @@ const Contact = () => {
     e.preventDefault()
     e.stopPropagation()
 
+    const formData = { name, email, phone, question, message }
+
+    trackEvent('submit_form', formData)
+
     try {
       setError('')
       setIsLoading(true)
@@ -1124,7 +1182,7 @@ const Contact = () => {
           Accept: 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ name, email, phone, question, message })
+        body: JSON.stringify(formData)
       })
 
       const data = await response.json()
@@ -1294,6 +1352,9 @@ const Footer = () => (
               href={FACEBOOK_URL}
               target="_blank"
               rel="noreferrer"
+              onClick={() =>
+                trackEvent('social_clicked', { platform: 'facebook' })
+              }
             >
               <img src={facebook} alt="Facebook" />
             </a>
@@ -1302,6 +1363,9 @@ const Footer = () => (
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noreferrer"
+              onClick={() =>
+                trackEvent('social_clicked', { platform: 'instagram' })
+              }
             >
               <img src={instagram} alt="Instagram" />
             </a>
