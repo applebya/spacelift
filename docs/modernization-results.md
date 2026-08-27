@@ -340,9 +340,10 @@ have been caught. It still ships as `Report-Only` for 48 hours first.
   known item: `background-attachment: fixed` on the About section's island
   watermark is not honoured by iOS Safari, which treats it as `scroll`. That was
   already true before this work and is cosmetic.
-- **CI has not executed.** The workflow is written and every step was run
-  locally, but GitHub Actions cannot be triggered from here. Its first real run
-  will be the first push of this branch.
+- **CI has run and passed** on the pull request (`applebya/spacelift#1`) — verify
+  and build both green, publish correctly skipped by its gate. The publish path
+  itself is therefore still unexercised, and will stay so until the Pages source
+  is switched.
 - **The Cloudflare configuration is unapplied**, so its headers and cache
   behaviour are verified locally but not in production.
 - **The 220 MB of deleted assets remain in git history.** Removing them from
