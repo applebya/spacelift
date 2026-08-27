@@ -75,10 +75,25 @@ jobs:
         with:
           path: dist
 
+  # Publishing through actions/deploy-pages requires the repository's Pages
+  # source to be set to "GitHub Actions". Until that switch is made the source
+  # is still the legacy gh-pages branch, and this job would fail on every merge
+  # to main -- so it is gated behind a repository variable rather than left to
+  # red-X the default branch.
+  #
+  # To enable, once and together:
+  #   1. Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+  #   2. Settings -> Secrets and variables -> Actions -> Variables:
+  #      set PAGES_DEPLOY_ENABLED = true
+  #
+  # Until then, `pnpm run deploy` from a workstation remains the release path.
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      vars.PAGES_DEPLOY_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages

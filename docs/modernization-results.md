@@ -224,16 +224,25 @@ Brotli alone would cut the compressible payload a further **13.9%** (109.6 kB �
 
 ---
 
-## Not yet live — awaiting approval
+## Not yet live — held by decision
 
-Two production changes are prepared but deliberately not executed:
+Two production changes are prepared and **deliberately not executed**. Both were
+put to the owner on 2026-08-27, and both were held:
 
-1. **GitHub Pages source → GitHub Actions.** The repository is on the legacy
-   `gh-pages`-branch build type. The workflow is written and tested locally, but
-   switching the source is a repository settings change.
-2. **Nameservers → Cloudflare** (registration stays at GoDaddy).
+1. **GitHub Pages source → GitHub Actions.** *Held.* The repository stays on the
+   legacy `gh-pages`-branch build, so the release path remains
+   `pnpm run deploy` from a workstation. CI still runs verify + build on every
+   push and pull request; only the publish step is gated, behind a
+   `PAGES_DEPLOY_ENABLED` repository variable, so the workflow cannot fail
+   `main` while the source is unchanged. Enabling it is two settings changes,
+   documented in the README and in the workflow itself.
+2. **Nameservers → Cloudflare** (registration would stay at GoDaddy). *Held.*
+   The site therefore keeps GitHub Pages' current behaviour: no custom response
+   headers, `max-age=600` on content-hashed assets, gzip only and no HTTP/3. The
+   full configuration is staged in `infra/cloudflare/` and can be applied
+   whenever the owner chooses.
 
-The second needs care beyond the usual. Capturing the zone from the authoritative
+The second was the reason for the pause. Capturing the zone from the authoritative
 nameservers turned up something not mentioned in the brief: **`spacelift.online`
 carries a full Microsoft 365 mail configuration** — MX, SPF, `autodiscover`,
 Lync/Teams CNAMEs and SRV records. Moving nameservers moves the business's email
@@ -340,5 +349,10 @@ have been caught. It still ships as `Report-Only` for 48 hours first.
   history would require a rewrite, which is explicitly out of bounds for this
   engagement — and rightly so.
 - **The repository is public**, not private as the brief assumed
-  (`gh api repos/applebya/spacelift` → `"private": false`). Flagged for the
-  owner; no action taken.
+  (`gh api repos/applebya/spacelift --jq .private` → `false`). Nothing sensitive
+  is committed — the Formcarry endpoint and the Google Analytics measurement ID
+  are public-by-design identifiers — but the source, the owner's photographs and
+  the entire commit history are world-readable. **Flagged for the owner as
+  requiring a decision; no action taken**, since changing repository visibility
+  affects GitHub Pages availability on some plans and is not a developer's call
+  to make unilaterally.

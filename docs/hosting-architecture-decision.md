@@ -1,6 +1,11 @@
 # ADR: Hosting and edge architecture for spacelift.online
 
 **Status:** Accepted (2026-08-27) · **Decision:** Option A — keep GitHub Pages, put Cloudflare in front
+**Implementation status:** **Not applied.** The owner elected on 2026-08-27 to hold
+the nameserver change rather than move the zone — and therefore the business's
+Microsoft 365 email — as part of a website engagement. The configuration is
+staged in `infra/cloudflare/` and the decision below stands whenever it is
+wanted; nothing else in the modernization depends on it.
 
 ---
 

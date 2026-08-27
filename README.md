@@ -102,11 +102,18 @@ to webfont barely moves anything. Removing those fallback faces reintroduces a
 
 ## Deployment
 
-`main` → GitHub Actions → GitHub Pages → `spacelift.online`.
-
 `.github/workflows/deploy.yml` runs typecheck, lint, format check, tests and a
-production dependency audit; then builds, verifies no reference in `dist/` is
-broken, and publishes. Pull requests run everything except the publish step.
+production dependency audit on every push and pull request; then builds and
+verifies no reference in `dist/` is broken.
+
+**Publishing is not yet automated.** `actions/deploy-pages` needs the
+repository's Pages source set to *GitHub Actions*, and the repository is still on
+the legacy `gh-pages`-branch build. Until both of the following are done
+together, the release path remains `pnpm run deploy` from a workstation — and the
+deploy job is gated off so it cannot red-X `main` in the meantime:
+
+1. **Settings → Pages → Source:** GitHub Actions
+2. **Settings → Variables → Actions:** `PAGES_DEPLOY_ENABLED = true`
 
 The domain is registered at **GoDaddy** and stays there. See
 `docs/hosting-architecture-decision.md` for why GitHub Pages remains the origin,
