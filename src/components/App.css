@@ -1,12 +1,12 @@
 body {
-  font-family: 'Besley', serif;
+  font-family: 'Besley', 'Besley Fallback', 'Times New Roman', serif;
 }
 html {
   scroll-behavior: smooth;
 }
 
 .sans-serif {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Lato', 'Lato Fallback', Arial, sans-serif;
 }
 
 .sans-serif.font-extralight {
@@ -23,18 +23,6 @@ html {
 
 .tracking-widest {
   letter-spacing: 0.5em;
-}
-
-.pad {
-  padding: 0 6rem;
-}
-
-.pad-left {
-  padding-left: 6rem;
-}
-
-.pad-right {
-  padding-right: 2rem;
 }
 
 .leading-loose {
