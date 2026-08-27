@@ -103,7 +103,9 @@ export { default as couch } from 'assets/couch.png?format=avif;webp;png&w=400;64
 // Two decorative backgrounds stay as CSS backgrounds: a 5px gradient strip that
 // stretches across the section, and a fixed-attachment island watermark.
 export { default as couchBg } from 'assets/couch-bg.png'
-export { default as vanIsle } from 'assets/van-isle.png?format=avif;webp;png&w=1400&quality=70&as=picture'
+// Displayed at a fixed 450px height (about 1060px wide) as a background, so
+// it is generated once at 2x that width — backgrounds cannot use `sizes`.
+export { default as vanIsle } from 'assets/van-isle.png?format=avif;webp;png&w=2120&quality=60&as=picture'
 
 /* -------------------------------------------------------------------------- */
 /* process                                                                     */

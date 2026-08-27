@@ -21,7 +21,7 @@ export const About = () => (
     */}
     <div
       aria-hidden="true"
-      className="pointer-events-none absolute inset-0 -z-10 hidden bg-fixed bg-[position:right_top_-90px] bg-no-repeat md:block"
+      className="pointer-events-none absolute inset-0 -z-10 hidden bg-[length:auto_450px] bg-fixed bg-[position:right_top_-90px] bg-no-repeat md:block"
       style={{ backgroundImage: imageSet(vanIsle) }}
     />
 
