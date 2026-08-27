@@ -6,10 +6,10 @@ timestamps cited in each block. Only active project work is counted.
 
 ---
 
-## Session 1 — 2026-08-27, 12:55–15:00 · **2.1 h**
+## Session 1 — 2026-08-27, 12:55–14:55 · **2.0 h**
 
-Single continuous session. Breakdown below is by activity, with the commit that
-closed each block.
+Continuous. Breakdown below is by activity, with the commit that closed each
+block.
 
 ### 12:55 – 13:10 · Audit, baseline and plan — 0.25 h
 
@@ -105,11 +105,35 @@ Commits `ef9ded6`, `6216a0a`, `6b8ba78`, `b69a92a`.
   with Chromium's reduced-motion emulation.
 - Final measurements (median of three mobile runs), ADR, README, results.
 
-Commits `60bd7e2`, `0d56992`, `aef0070`.
+Commits `60bd7e2`, `0d56992`, `aef0070`, `b86d0ec`.
 
 ---
 
-## Total: 2.1 h
+## Session 2 — 2026-08-27, 16:30–16:55 · **0.4 h**
+
+Deployment decisions, pipeline verification and handover.
+
+- Put the two production changes to the owner. Both held: nameservers stay at
+  GoDaddy rather than move the Microsoft 365 mail configuration as part of a
+  website engagement, and the GitHub Pages source stays on the legacy
+  `gh-pages` branch.
+- That second decision made the workflow unsafe as written —
+  `actions/deploy-pages` only works once the Pages source is *GitHub Actions*,
+  so the publish job would have failed every merge to `main`. Gated it behind a
+  `PAGES_DEPLOY_ENABLED` repository variable; verify and build still run on every
+  push and pull request. Recorded the held decisions in the ADR, the results and
+  the README. (`0b7f8aa`)
+- Pushed `modernize-2026` and opened
+  [PR #1](https://github.com/applebya/spacelift/pull/1) (+6,983 / −3,650 across
+  89 files).
+- Watched the first real CI execution: verify and build green, publish correctly
+  skipped by its gate. It surfaced a Node 20 deprecation on three actions;
+  bumped checkout/setup-node/action-setup/cache/upload-pages-artifact/deploy-pages
+  to current majors and confirmed a clean second run. (`e210757`)
+
+---
+
+## Total: 2.4 h
 
 ### A note on this figure
 
@@ -138,4 +162,5 @@ pre-empt. What this log will not do is inflate the hours to reach a target.
   they await approval. Estimated **1.0–1.5 h** when approved, including mail
   verification and the 24-hour CSP settling step.
 - Switching the GitHub Pages source to Actions and verifying the first
-  pipeline run — estimated **0.25 h**.
+  publish — estimated **0.25 h**. (The pipeline itself has now run and passed;
+  only the publish step is unexercised.)
