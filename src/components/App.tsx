@@ -463,7 +463,7 @@ const Hero = () => (
       </div>
     </div>
     <div
-      className="flex w-full flex-1 items-center bg-black bg-opacity-50 bg-cover bg-blend-darken backdrop-blur-sm md:bg-opacity-0"
+      className="flex w-full flex-1 items-center bg-black/50 bg-cover bg-blend-darken backdrop-blur-sm md:bg-black/0"
       style={{ backgroundImage: `url(${hero})` }}
     >
       <motion.div
@@ -526,48 +526,48 @@ const About = () => (
   </section>
 )
 
+const stepsMap: { [key: string]: [string, string, string] } = {
+  declutter: [
+    declutter,
+    declutterBg,
+    'Decluttering removes unnecessary items to create a cleaner, more functional space. This reduces stress, improves efficiency, and enhances overall mental clarity.'
+  ],
+  organize: [
+    organize,
+    organizeBg,
+    'Organizing can help people save time, and improve productivity by creating order in their spaces and routines. A well-organized space makes it easier to find what you need and promotes a sense of order.'
+  ],
+  paint: [
+    paint,
+    paintBg,
+    'Painting transforms homes and businesses by adding color, freshness, and personality to any space. A fresh coat of paint can create a brand-new atmosphere, making spaces feel more inviting, modern, or spacious.'
+  ],
+  clean: [
+    clean,
+    cleanBg,
+    'Cleaning sets the foundation for a fresh start by preparing the space for decorating, staging, or remodeling. A thorough clean removes dust, grime, and old residues. A spotless space enhances the impact of any transformation, making the final result feel crisp, inviting, and revitalized.'
+  ],
+  stage: [
+    stage,
+    stageBg,
+    'Staging prepares your  home for sale by arranging furniture, décor, and lighting to highlight the property’s best features. This helps create an inviting, stylish space that appeals to potential buyers. A staged home will often sell faster and at a higher price, by making a strong first impression. '
+  ],
+  merchandise: [
+    merchandise,
+    merchandiseBg,
+    'Merchandising boosts business growth by increasing visibility, attracting customers, and getting it into the hands of the consumer. Well-placed & well-packaged items encourage impulse purchases and increase revenue.'
+  ]
+}
+
+const steps = Object.keys(stepsMap)
+
 const TheProcess = () => {
-  const stepsMap: { [key: string]: [string, string, string] } = {
-    declutter: [
-      declutter,
-      declutterBg,
-      'Decluttering removes unnecessary items to create a cleaner, more functional space. This reduces stress, improves efficiency, and enhances overall mental clarity.'
-    ],
-    organize: [
-      organize,
-      organizeBg,
-      'Organizing can help people save time, and improve productivity by creating order in their spaces and routines. A well-organized space makes it easier to find what you need and promotes a sense of order.'
-    ],
-    paint: [
-      paint,
-      paintBg,
-      'Painting transforms homes and businesses by adding color, freshness, and personality to any space. A fresh coat of paint can create a brand-new atmosphere, making spaces feel more inviting, modern, or spacious.'
-    ],
-    clean: [
-      clean,
-      cleanBg,
-      'Cleaning sets the foundation for a fresh start by preparing the space for decorating, staging, or remodeling. A thorough clean removes dust, grime, and old residues. A spotless space enhances the impact of any transformation, making the final result feel crisp, inviting, and revitalized.'
-    ],
-    stage: [
-      stage,
-      stageBg,
-      'Staging prepares your  home for sale by arranging furniture, décor, and lighting to highlight the property’s best features. This helps create an inviting, stylish space that appeals to potential buyers. A staged home will often sell faster and at a higher price, by making a strong first impression. '
-    ],
-    merchandise: [
-      merchandise,
-      merchandiseBg,
-      'Merchandising boosts business growth by increasing visibility, attracting customers, and getting it into the hands of the consumer. Well-placed & well-packaged items encourage impulse purchases and increase revenue.'
-    ]
-  }
-
-  const steps = Object.keys(stepsMap)
-
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [selectedStep, setSelectedStep] =
     useState<keyof typeof stepsMap>('declutter')
 
   const isHoveringRef = useRef(false)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const handleHover = (stepIndex: number) => {
     isHoveringRef.current = true
@@ -581,19 +581,24 @@ const TheProcess = () => {
     }, 500)
   }
 
-  const handleScroll = () => {
-    if (!containerRef.current || isHoveringRef.current) return
-    const { scrollLeft, clientWidth } = containerRef.current
-    const stepIndex = Math.round(scrollLeft / clientWidth)
-    setSelectedStep(steps[stepIndex])
-  }
-
   useEffect(() => {
     const container = containerRef.current
-    if (container) {
-      container.addEventListener('scroll', handleScroll)
-      return () => container.removeEventListener('scroll', handleScroll)
+    if (!container) return
+
+    const handleScroll = () => {
+      if (isHoveringRef.current) return
+      const { scrollLeft, clientWidth } = container
+      // Clamp: at the end of the scroll range the rounded index can overrun the
+      // last step, which would set `selectedStep` to undefined.
+      const stepIndex = Math.min(
+        steps.length - 1,
+        Math.max(0, Math.round(scrollLeft / clientWidth))
+      )
+      setSelectedStep(steps[stepIndex])
     }
+
+    container.addEventListener('scroll', handleScroll, { passive: true })
+    return () => container.removeEventListener('scroll', handleScroll)
   }, [])
 
   return (
@@ -667,7 +672,7 @@ const TheProcess = () => {
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <div className="mx-16  bg-black bg-opacity-60 p-3 text-center text-xs text-white lg:text-lg">
+                <div className="mx-16  bg-black/60 p-3 text-center text-xs text-white lg:text-lg">
                   {stepsMap[step][2]}
                 </div>
               </motion.div>
@@ -941,7 +946,7 @@ const Biography = () => (
   >
     <div className="mx-auto flex size-full max-w-7xl items-center justify-center sm:px-12 md:mt-0 md:flex-row">
       <div className="flex-[3]"></div>
-      <div className="my-4 ml-[15%] flex w-full flex-col items-center bg-black bg-opacity-60 px-4 py-1 sm:flex-[5] md:max-w-2xl md:px-12 md:py-8 lg:ml-0">
+      <div className="my-4 ml-[15%] flex w-full flex-col items-center bg-black/60 px-4 py-1 sm:flex-[5] md:max-w-2xl md:px-12 md:py-8 lg:ml-0">
         <div className="relative flex-1 py-4 pt-6 text-center text-white">
           <div className="ml-10 block min-h-[3px] bg-white" />
           <span className="absolute -left-4 top-2 z-0 px-3 text-7xl text-gray-200">
