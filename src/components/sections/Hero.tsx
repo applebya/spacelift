@@ -37,8 +37,8 @@ export const Hero = () => (
     <div className="flex text-gray-700 md:flex-[2] md:flex-row md:pt-[30%] lg:pt-[15%] xl:flex-1">
       <div className="flex flex-1 flex-col justify-around pb-4 md:pb-10">
         <motion.div
-          initial={{ marginLeft: -100, opacity: 0 }}
-          animate={{ marginLeft: 0, opacity: 1 }}
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1 }}
           className="hidden max-w-3xl px-8 md:block md:px-12 lg:my-8 xl:pl-24"
         >
@@ -51,8 +51,8 @@ export const Hero = () => (
               <motion.li
                 key={item}
                 className="flex justify-center gap-2 text-xs uppercase tracking-wider lg:gap-2 lg:text-sm"
-                initial={{ marginLeft: -100, opacity: 0 }}
-                animate={{ marginLeft: 0, opacity: 1 }}
+                initial={{ x: -100, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
                 transition={{ duration: 0.5, delay: 0.5 + index * 0.25 }}
               >
                 <span>{item}</span>

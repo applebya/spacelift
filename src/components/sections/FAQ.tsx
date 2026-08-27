@@ -54,8 +54,8 @@ const Question = ({
         <motion.div
           id={panelId}
           className="border border-gray-800 bg-white p-6 text-sm leading-loose tracking-wide text-gray-800"
-          initial={{ marginTop: -50, opacity: 0 }}
-          animate={{ marginTop: 0, opacity: 1 }}
+          initial={{ y: -12, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.3 }}
         >
           {children}
