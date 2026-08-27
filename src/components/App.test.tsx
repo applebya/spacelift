@@ -1,8 +1,37 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import App from './App'
 
 describe('<App />', () => {
+  it('has exactly one h1, naming the business proposition', () => {
+    render(<App />)
+
+    const h1s = screen.getAllByRole('heading', { level: 1 })
+
+    expect(h1s).toHaveLength(1)
+    expect(h1s[0]).toHaveTextContent(/we revitalize your/i)
+  })
+
+  it('does not skip heading levels', () => {
+    const { container } = render(<App />)
+
+    const levels = Array.from(
+      container.querySelectorAll('h1,h2,h3,h4,h5,h6')
+    ).map((h) => Number(h.tagName[1]))
+
+    expect(levels[0]).toBe(1)
+    for (let i = 1; i < levels.length; i++) {
+      expect(levels[i] - levels[i - 1]).toBeLessThanOrEqual(1)
+    }
+  })
+
+  it('wraps its content in a main landmark', () => {
+    render(<App />)
+
+    expect(screen.getByRole('main')).toBeInTheDocument()
+  })
+
   it('renders every marketing section', () => {
     render(<App />)
 
@@ -47,34 +76,139 @@ describe('<App />', () => {
     }
   })
 
-  it('gives every image alternative text', () => {
+  it('gives every image alternative text and intrinsic dimensions', () => {
     const { container } = render(<App />)
+    const images = Array.from(container.querySelectorAll('img'))
 
-    const untitled = Array.from(container.querySelectorAll('img')).filter(
-      (img) => img.getAttribute('alt') === null
-    )
-
-    expect(untitled).toHaveLength(0)
+    expect(images.length).toBeGreaterThan(0)
+    for (const img of images) {
+      expect(img.getAttribute('alt')).not.toBeNull()
+      // Reserving the aspect ratio before decode is what keeps CLS near zero.
+      expect(img.getAttribute('width')).not.toBeNull()
+      expect(img.getAttribute('height')).not.toBeNull()
+    }
   })
 
-  it('lists all six steps of the process', () => {
-    render(<App />)
+  it('lazy-loads gallery photographs but not the hero', () => {
+    const { container } = render(<App />)
 
-    const process = screen
-      .getByRole('heading', { name: /the process/i })
-      .closest('section') as HTMLElement
+    const hero = container.querySelector<HTMLImageElement>(
+      '[data-testid="hero-image"]'
+    )
+    expect(hero).not.toBeNull()
+    expect(hero).toHaveAttribute('fetchpriority', 'high')
+    expect(hero!.loading).not.toBe('lazy')
 
-    for (const step of [
-      'declutter',
-      'organize',
-      'paint',
-      'clean',
-      'stage',
-      'merchandise'
-    ]) {
-      expect(
-        within(process).getByRole('heading', { name: step })
-      ).toBeInTheDocument()
+    // `picture img` excludes the small inline SVG carousel arrows.
+    const gallery = Array.from(
+      container.querySelectorAll<HTMLImageElement>('#spaces picture img')
+    )
+    expect(gallery.length).toBeGreaterThan(30)
+    for (const img of gallery) {
+      expect(img.loading).toBe('lazy')
     }
+  })
+
+  it('offers modern image formats ahead of the original', () => {
+    const { container } = render(<App />)
+
+    const heroPicture = container
+      .querySelector('[data-testid="hero-image"]')!
+      .closest('picture')!
+
+    const types = Array.from(heroPicture.querySelectorAll('source')).map(
+      (source) => source.type
+    )
+
+    expect(types[0]).toBe('image/avif')
+    expect(types).toContain('image/webp')
+    expect(types.at(-1)).toBe('image/jpeg')
+  })
+
+  it('sizes gallery images by layout width, not device density alone', () => {
+    const { container } = render(<App />)
+
+    // The pre-modernization markup used `srcset="... 1x, ... 2x"`, which gives
+    // the browser no way to account for how wide the element actually is: a
+    // 390px phone at DPR 2 fetched a 1286px candidate regardless of the ~350px
+    // it was displayed at. Width descriptors plus `sizes` are what make that
+    // decision correct.
+    const gallery = container.querySelector<HTMLImageElement>(
+      '#spaces picture img'
+    )!
+    const sources = Array.from(
+      gallery.closest('picture')!.querySelectorAll('source')
+    )
+
+    expect(gallery.getAttribute('sizes')).toBeTruthy()
+    expect(sources.length).toBeGreaterThan(0)
+    for (const source of sources) {
+      expect(source.getAttribute('sizes')).toBeTruthy()
+      expect(source.srcset).toMatch(/\d+w/)
+      expect(source.srcset).not.toMatch(/\dx(,|$)/)
+    }
+  })
+
+  describe('FAQ disclosures', () => {
+    it('exposes each question as a keyboard-operable button', () => {
+      render(<App />)
+
+      const question = screen.getByRole('button', {
+        name: /what are the rates for your services\?/i
+      })
+
+      expect(question).toHaveAttribute('aria-expanded', 'false')
+      expect(question).not.toHaveAttribute('tabindex')
+    })
+
+    it('reveals the answer when activated', async () => {
+      const user = userEvent.setup()
+      render(<App />)
+
+      const question = screen.getByRole('button', {
+        name: /what are the rates for your services\?/i
+      })
+
+      expect(screen.queryByText(/\$75\.00 per hour/i)).not.toBeInTheDocument()
+
+      await user.click(question)
+
+      expect(question).toHaveAttribute('aria-expanded', 'true')
+      expect(screen.getByText(/\$75\.00 per hour/i)).toBeInTheDocument()
+    })
+  })
+
+  describe('process steps', () => {
+    it('renders all six as buttons with pressed state', () => {
+      render(<App />)
+
+      const group = screen.getByRole('group', { name: /process steps/i })
+      const steps = within(group).getAllByRole('button')
+
+      expect(steps.map((b) => b.textContent)).toEqual([
+        'declutter',
+        'organize',
+        'paint',
+        'clean',
+        'stage',
+        'merchandise'
+      ])
+      expect(steps[0]).toHaveAttribute('aria-pressed', 'true')
+      expect(steps[1]).toHaveAttribute('aria-pressed', 'false')
+    })
+  })
+
+  describe('gallery carousels', () => {
+    it('labels both scroll directions distinctly', () => {
+      render(<App />)
+
+      expect(
+        screen.getAllByRole('button', { name: /scroll to previous image/i })
+          .length
+      ).toBe(5)
+      expect(
+        screen.getAllByRole('button', { name: /scroll to next image/i }).length
+      ).toBe(5)
+    })
   })
 })
