@@ -307,7 +307,7 @@ const Header = () => {
         </nav>
 
         {/* Hamburger button for mobile (always in top-right) */}
-        <div className="absolute right-3 top-4 z-50 md:hidden ">
+        <div className="absolute right-3 top-4 z-50 md:hidden">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="z-50 border border-black bg-white p-2 focus:outline-none focus:ring-gray-600"
@@ -672,7 +672,7 @@ const TheProcess = () => {
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <div className="mx-16  bg-black/60 p-3 text-center text-xs text-white lg:text-lg">
+                <div className="mx-16 bg-black/60 p-3 text-center text-xs text-white lg:text-lg">
                   {stepsMap[step][2]}
                 </div>
               </motion.div>
@@ -798,9 +798,9 @@ const Space = ({
             <img
               src={arrowDown}
               width="24"
-              className={`-rotate-90  ${
+              className={`-rotate-90 ${
                 canScrollNext ? '' : 'opacity-25'
-              } transition-opacity duration-500 `}
+              } transition-opacity duration-500`}
               alt="Next"
             />
           </button>
@@ -1340,7 +1340,7 @@ const Footer = () => (
     <div className="hidden flex-1 items-center justify-center lg:flex lg:border-r-white">
       <div>
         <img src={logo} className="h-32 brightness-150 grayscale" alt="logo" />
-        <div className="sans-serif flex justify-center text-xs tracking-widest ">
+        <div className="sans-serif flex justify-center text-xs tracking-widest">
           <span className="mb-1">TRANSFORMING SPACES</span>
         </div>
       </div>
