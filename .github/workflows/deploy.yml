@@ -1,0 +1,106 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, lint and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+      - run: pnpm run format:check
+      - run: pnpm run test:run
+
+      # Production dependencies only. The build/test toolchain carries advisories
+      # that never reach a browser, and failing the pipeline on those would train
+      # everyone to ignore it.
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level moderate
+
+  build:
+    name: Build
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # A cold build re-encodes every image variant (~50s). vite-imagetools keeps
+      # a content-addressed cache here, so only changed sources are re-encoded.
+      - name: Restore image encoding cache
+        uses: actions/cache@v6
+        with:
+          path: node_modules/.cache/imagetools
+          key: imagetools-${{ hashFiles('src/images.ts', 'src/assets/**') }}
+          restore-keys: imagetools-
+
+      - run: pnpm run build
+
+      - name: Check for broken internal references
+        run: pnpm run check:links
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  # Publishing through actions/deploy-pages requires the repository's Pages
+  # source to be set to "GitHub Actions". Until that switch is made the source
+  # is still the legacy gh-pages branch, and this job would fail on every merge
+  # to main -- so it is gated behind a repository variable rather than left to
+  # red-X the default branch.
+  #
+  # To enable, once and together:
+  #   1. Settings -> Pages -> Build and deployment -> Source: GitHub Actions
+  #   2. Settings -> Secrets and variables -> Actions -> Variables:
+  #      set PAGES_DEPLOY_ENABLED = true
+  #
+  # Until then, `pnpm run deploy` from a workstation remains the release path.
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      github.event_name != 'pull_request' &&
+      vars.PAGES_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
