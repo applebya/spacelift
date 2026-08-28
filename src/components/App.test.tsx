@@ -109,6 +109,34 @@ describe('<App />', () => {
     }
   })
 
+  it('gives high fetch priority to the LCP image and nothing else', () => {
+    const { container } = render(<App />)
+
+    // A second high-priority image competes with the LCP request for bandwidth
+    // on exactly the connections where it matters. The wordmark is above the
+    // fold and so loads eagerly, but it must not claim priority.
+    const prioritised = Array.from(container.querySelectorAll('img')).filter(
+      (img) => img.getAttribute('fetchpriority') === 'high'
+    )
+
+    expect(prioritised).toHaveLength(1)
+    expect(prioritised[0]).toHaveAttribute('data-testid', 'hero-image')
+  })
+
+  it('loads above-the-fold wordmarks eagerly without prioritising them', () => {
+    const { container } = render(<App />)
+
+    const wordmarks = Array.from(
+      container.querySelectorAll<HTMLImageElement>('header img, section img')
+    ).filter((img) => img.alt === 'Spacelift')
+
+    expect(wordmarks.length).toBeGreaterThan(0)
+    for (const img of wordmarks) {
+      expect(img.loading).not.toBe('lazy')
+      expect(img.getAttribute('fetchpriority')).not.toBe('high')
+    }
+  })
+
   it('offers modern image formats ahead of the original', () => {
     const { container } = render(<App />)
 

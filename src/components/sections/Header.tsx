@@ -123,7 +123,6 @@ export const Header = () => {
                 width={logo.img.w}
                 height={logo.img.h}
                 sizes={SIZES.logo}
-                fetchPriority="high"
                 decoding="async"
                 className="h-auto"
                 style={{ width }}

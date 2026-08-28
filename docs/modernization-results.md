@@ -260,6 +260,38 @@ have been caught. It still ships as `Report-Only` for 48 hours first.
 
 ---
 
+## Independent review
+
+The branch was reviewed by Codex (`gpt-5.6-sol`, high reasoning effort) against
+`main` before merge. It raised four findings; all four were verified
+independently rather than taken on trust, all four were real, and all four are
+fixed:
+
+| | Finding | Verified how |
+|---|---|---|
+| P1 | The staged Cloudflare HTML cache rule said *respect origin*, which hands the edge GitHub Pages' `max-age=600`. Because publishing replaces the whole `gh-pages` branch, an edge holding stale HTML for up to ten minutes would serve markup referencing hashed assets the origin no longer has. Setting only the *browser* TTL to no-cache does not help — the browser asks, and the edge answers from its own stale copy. | Reasoned from the deploy mechanics; the rule is now **bypass cache** for the three HTML paths |
+| P2 | `SIZES.hero` declared `50vw` from `md` up, but the photograph's `flex-1` column sits beside a `md:flex-[2] xl:flex-1` sibling — so it is **one third** of the viewport from 768 px to 1279 px, not one half | Measured the rendered element at 768/900/1024/1279/1280/1440/1920 px: 29/33/33/33/50/50/50 % |
+| P2 | Three images carried `fetchpriority="high"` — the hero plus the wordmark twice — so every viewport had a second high-priority image competing with the LCP request | Enumerated `fetchpriority=high` elements in a real browser at 390 px and 1440 px |
+| P2 | `engines: { node: '>=22' }` claimed support for versions the toolchain rejects: Vite 8 needs ≥ 22.12, ESLint 10 needs ^22.13 | Read the installed packages' own `engines` fields |
+
+Two of the fixes went further than the finding:
+
+- The hero `sizes` string was **duplicated** — once in `src/images.ts` for the
+  `<img>`, once in `vite.config.ts` for the injected preload. They have to be
+  identical or the browser preloads one candidate and requests another, and
+  nothing would have caught them drifting. Both now import `src/sizes.ts`.
+- `Picture`'s `priority` prop conflated "above the fold" with "is the LCP
+  element". Split into `priority` (eager + high + sync decode, at most one per
+  page) and `eager` (eager, browser's own priority). Two tests now pin the rule:
+  exactly one `fetchpriority="high"` image, and it is the hero.
+
+Effect: on a DPR-2 tablet the hero drops from a 1280 px candidate to a 960 px
+one — 32.8 kB to 20.1 kB — and there is no longer a second image competing for
+bandwidth with the LCP request at any viewport. Mobile numbers are unchanged;
+rendering is unchanged at all five viewports.
+
+---
+
 ## Verification performed
 
 - Clean `node_modules`, `pnpm install --frozen-lockfile` — clean

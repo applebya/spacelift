@@ -25,48 +25,17 @@
  * - EXIF/ICC metadata is dropped by the encoder, which is the default and is
  *   what we want: the originals carry full camera metadata.
  *
- * The matching `sizes` attribute for each group lives in `SIZES` below, next to
- * the widths it has to agree with. If one changes, the other must.
+ * The matching `sizes` attribute for each group lives in `src/sizes.ts`, which is
+ * kept import-free so the build can read the hero value too. If the widths here
+ * change, the `sizes` there must change with them.
  */
 
 import type { PictureData } from 'types/images'
 
-/* -------------------------------------------------------------------------- */
-/* sizes                                                                       */
-/* -------------------------------------------------------------------------- */
-
-export const SIZES = {
-  /**
-   * Hero photograph. Full width below `md`, the right-hand half of the split
-   * layout above it.
-   */
-  hero: '(min-width: 768px) 50vw, 100vw',
-
-  /**
-   * The four captioned galleries sit in a `max-w-6xl` (1152px) two-column grid
-   * with a 96px gutter and 48px of page padding from `sm` up.
-   */
-  gallery:
-    '(min-width: 1248px) 528px, (min-width: 768px) calc((100vw - 144px) / 2), 100vw',
-
-  /** The "Any Space" gallery spans the full `max-w-6xl` container. */
-  galleryWide: '(min-width: 1152px) 1152px, 100vw',
-
-  /** Full-bleed section backgrounds. */
-  fullBleed: '100vw',
-
-  /** Contact form photograph: one third of the split, desktop only. */
-  contact: '(min-width: 768px) 34vw, 0px',
-
-  /** Cut-out couch illustration, sized by height in the About section. */
-  couch: '(min-width: 768px) 640px, 526px',
-
-  /** Founder signature, capped at 128px tall. */
-  signature: '456px',
-
-  /** Wordmark: 420px at rest on desktop, 200px on mobile. */
-  logo: '(min-width: 768px) 420px, 200px'
-} as const
+// `sizes` values live in their own module so vite.config.ts can import the hero
+// one for the preload tag it injects. Re-exported here so callers have a single
+// import for everything image-related.
+export { SIZES } from 'sizes'
 
 /* -------------------------------------------------------------------------- */
 /* directive presets                                                           */

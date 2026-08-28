@@ -136,7 +136,7 @@ export const Hero = () => (
             picture={logo}
             alt="Spacelift"
             sizes={SIZES.logo}
-            priority
+            eager
             className="top-1 h-24 w-auto sm:h-28"
           />
         </div>

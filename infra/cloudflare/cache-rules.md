@@ -35,16 +35,31 @@ all five webfonts.
 
 **When:** `http.request.uri.path in {"/" "/index.html" "/404.html"}`
 **Then:**
-- Cache eligibility: **Eligible for cache**
-- Edge TTL: **respect origin**, with revalidation
+- Cache eligibility: **Bypass cache**
 - Browser TTL: **no-cache** (revalidate every time)
 
 Effective header: `cache-control: public, max-age=0, must-revalidate`
 
 The HTML is the only file whose URL does not change between deployments, so it
-is the only one that can go stale — and if it does, a deploy silently does not
-appear. It is 2.5 kB; revalidating it on every visit is cheap, and Cloudflare
-still serves it from the edge, it just checks first.
+is the only one that can go stale — and staleness here is not cosmetic.
+
+Publishing replaces the entire `gh-pages` branch, so the previous build's
+content-hashed assets stop existing at the origin. If an edge is still holding
+the old `index.html`, it hands visitors markup that references files the origin
+no longer has; any PoP that does not already have those bytes cached returns
+404s and the page is broken. GitHub Pages sends `max-age=600` on HTML, so
+**"respect origin" would give the edge a ten-minute window to do exactly that
+after every deploy.** Setting only the *browser* TTL to no-cache does not help:
+it makes the browser ask, and the edge answers from its own stale copy.
+
+Bypassing the edge for these three paths removes the failure mode entirely. The
+cost is one origin fetch per HTML request — 2.5 kB from a Fastly-backed origin,
+while Cloudflare still terminates TLS at the edge and every asset the page
+references is still served from cache.
+
+*If the origin fetch ever proves to matter, the alternative is an Edge TTL
+override of a few seconds plus a deploy-time purge of `/`, `/index.html` and
+`/404.html`. Do not simply lengthen it.*
 
 ### 3. Stable brand assets and site metadata
 
@@ -68,10 +83,12 @@ Small, rarely read, and occasionally worth changing quickly.
 ## What deploying looks like under this policy
 
 1. CI builds and publishes. New `/assets/*` filenames appear; `index.html` is
-   rewritten to point at them.
-2. The next visitor revalidates `index.html`, gets the new one, and requests the
-   new asset URLs. Nothing they already have cached is stale, because nothing
-   they have cached was replaced.
+   rewritten to point at them, and the previous build's assets stop existing at
+   the origin.
+2. The next visitor's HTML request goes to the origin — the edge does not cache
+   it — so they get the new markup immediately and request the new asset URLs.
+   Nothing they already have cached is stale, because nothing they have cached
+   was replaced.
 3. No cache purge is required. If one is ever wanted — say a change to
    `og-image.jpg` needs to be visible immediately — purge that single URL rather
    than the zone.
@@ -79,8 +96,9 @@ Small, rarely read, and occasionally worth changing quickly.
 ## Verifying after rollout
 
 ```sh
-# HTML: must revalidate
+# HTML: must not be held at the edge
 curl -sI https://spacelift.online/ | grep -i 'cache-control\|cf-cache-status'
+#   expect cf-cache-status: BYPASS (or DYNAMIC), never HIT
 
 # A fingerprinted asset: must be immutable and a year
 ASSET=$(curl -s https://spacelift.online/ | grep -o '/assets/index-[^"]*\.js' | head -1)
@@ -90,13 +108,19 @@ curl -sI "https://spacelift.online$ASSET" | grep -i 'cache-control\|cf-cache-sta
 curl -sI -H 'Accept-Encoding: br' "https://spacelift.online$ASSET" | grep -i 'content-encoding'
 ```
 
-Expect `cf-cache-status: HIT` on the second request for an asset, and
-`content-encoding: br`.
+Expect `cf-cache-status: HIT` on the second request for an *asset*,
+`BYPASS` on the HTML, and `content-encoding: br`.
+
+The deploy-staleness case is worth testing once deliberately: deploy, then
+immediately request `/` from a PoP that had traffic before the deploy, and
+confirm the returned HTML references assets that resolve.
 
 ## What is deliberately not done
 
 - **No "Cache Everything" on HTML with a long edge TTL.** It is the fastest way
-  to make a deployment look like it did not happen.
+  to make a deployment look like it did not happen — and, because publishing
+  removes the previous build's hashed assets, the fastest way to serve a page
+  whose scripts 404.
 - **No Cloudflare minification.** Vite already minifies; Cloudflare's HTML
   minifier would rewrite output that has been shaped deliberately, including the
   preload tags the build injects.

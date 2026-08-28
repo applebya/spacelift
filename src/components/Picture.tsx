@@ -10,11 +10,18 @@ type BaseProps = {
   sizes: string
   className?: string
   /**
-   * Above-the-fold images must set this. It switches off lazy loading, asks for
-   * high fetch priority, and decodes synchronously so the pixels are ready as
-   * early as possible. Exactly one image on the page should be `priority`.
+   * Marks the Largest Contentful Paint element: eager, `fetchpriority="high"`,
+   * synchronous decode. **Exactly one image on the page may set this** — a
+   * second high-priority image competes with the LCP request for bandwidth on
+   * precisely the connections where it matters most.
    */
   priority?: boolean
+  /**
+   * Above the fold but not the LCP element. Loads eagerly — lazy-loading
+   * something already in the viewport only delays it — but leaves fetch
+   * priority at the browser's own judgement.
+   */
+  eager?: boolean
 } & Omit<
   ImgHTMLAttributes<HTMLImageElement>,
   'src' | 'srcSet' | 'sizes' | 'alt' | 'loading'
@@ -66,6 +73,7 @@ export const Picture = ({
   sizes,
   className,
   priority = false,
+  eager = false,
   ...imgProps
 }: PictureProps) => {
   const { img } = picture
@@ -86,7 +94,7 @@ export const Picture = ({
         height={img.h}
         alt={alt}
         className={className}
-        loading={priority ? 'eager' : 'lazy'}
+        loading={priority || eager ? 'eager' : 'lazy'}
         decoding={priority ? 'sync' : 'async'}
         fetchPriority={priority ? 'high' : 'auto'}
       />
