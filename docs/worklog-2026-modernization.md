@@ -133,12 +133,42 @@ Deployment decisions, pipeline verification and handover.
 
 ---
 
-## Total: 2.4 h
+## Session 3 — 2026-08-28, 10:05–11:00 · **0.9 h**
+
+Independent review, merge, production deployment and verification.
+
+- Ran an independent review of the branch with Codex (`gpt-5.6-sol`, high
+  reasoning effort) against `main`. Four findings; verified every one myself
+  rather than acting on the report, and all four held up.
+- Fixed them, and two of the fixes went past the finding: the hero `sizes`
+  string was duplicated between `src/images.ts` and `vite.config.ts` with
+  nothing to catch drift (extracted to `src/sizes.ts`), and `Picture`'s
+  `priority` prop was conflating "above the fold" with "is the LCP element"
+  (split, with two tests pinning the rule). Measured the effect: a DPR-2 tablet
+  now fetches a 20.1 kB hero instead of 32.8 kB. (`3a75b91`)
+- Re-ran the reviewer against the fix commit — no further findings.
+- CI green; merged PR #1 with a merge commit so the commit SHAs cited in these
+  documents stay resolvable on `main`.
+- Recorded a rollback point (`gh-pages` @ `df81bb2`), rebuilt clean from merged
+  `main`, and deployed. Live in ~60 s.
+- Verified production: hosts and redirects, TLS, every static path and content
+  type, the branded 404, metadata, preloads, structure, rendering at five
+  viewports against the local build, and an interactive smoke test on mobile
+  emulation covering keyboard FAQ operation, process selection, carousel arrows,
+  the mobile menu and the contact form. Zero console errors.
+- Measured production before/after and corrected the results document: the
+  desktop comparison is local-to-local, because no production desktop baseline
+  was captured before the old build was replaced. Also recorded that FCP moved
+  0.28 s the *wrong* way — the deliberate cost of preloading the hero.
+
+---
+
+## Total: 3.3 h
 
 ### A note on this figure
 
-This is measured elapsed working time, and it is what the log is for. It is
-substantially below the 14–16 h the engagement anticipated.
+This is measured elapsed working time across three sessions, and it is what the
+log is for. It is substantially below the 14–16 h the engagement anticipated.
 
 The scope delivered is the scope that was planned — every P0 and P1 item in
 `docs/modernization-plan.md` is complete, and the results are measured rather
@@ -162,5 +192,6 @@ pre-empt. What this log will not do is inflate the hours to reach a target.
   they await approval. Estimated **1.0–1.5 h** when approved, including mail
   verification and the 24-hour CSP settling step.
 - Switching the GitHub Pages source to Actions and verifying the first
-  publish — estimated **0.25 h**. (The pipeline itself has now run and passed;
-  only the publish step is unexercised.)
+  publish — estimated **0.25 h**. (The pipeline has run and passed; only its
+  publish step is unexercised. The 2026-08-28 release went out through
+  `pnpm run deploy`, the existing path.)

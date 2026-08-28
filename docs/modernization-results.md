@@ -9,37 +9,68 @@
 
 A first visit to spacelift.online on a phone transferred **13.17 MB** and did
 not reach Largest Contentful Paint for **45.6 seconds**. It now transfers
-**0.88 MB** and reaches LCP in **1.85 s**.
+**0.88 MB** and reaches LCP in **1.98 s**.
 
 Getting there meant fixing four independent causes rather than one, and the work
 around it — a red test suite, 65 dependency advisories, an FAQ that no keyboard
 user could open, a manual deploy with no gate in front of it — turned out to
 matter as much as the headline number.
 
-|                        | Before                             | After                                                  |                   |
-| ---------------------- | ---------------------------------- | ------------------------------------------------------ | ----------------- |
-| **Transfer (mobile)**  | 13.17 MB                           | **0.88 MB**                                            | −93%              |
-| **LCP (mobile)**       | 45.6 s¹                            | **1.85 s**                                             | target < 2.5 s ✅ |
-| **CLS (mobile)**       | 0.028                              | **0.0003**                                             | target < 0.1 ✅   |
-| **Transfer (desktop)** | 6.78 MB                            | **0.87 MB**                                            | −87%              |
-| **LCP (desktop)**      | 0.20 s                             | **0.08 s**                                             | ✅                |
-| Requests               | 66                                 | 42                                                     |                   |
-| Image bytes            | 13.06 MB / 60 reqs                 | **0.66 MB / 32 reqs**                                  | −95%              |
-| Dependency advisories  | 3 critical, 34 high, 24 mod, 4 low | **0**                                                  |                   |
-| `pnpm test`            | ✗ fails (1 stale test)             | ✓ **14 pass**                                          |                   |
-| `pnpm lint`            | ✗ fails (5 warnings)               | ✓ passes                                               |                   |
-| Deploy gate            | none                               | typecheck + lint + format + tests + audit + link check |                   |
+**Deployed to production 2026-08-28.** The figures below are measured against
+the live site before and after, not against a local build.
 
-¹ Production, over the network. The same build served locally measured 11.6 s;
-the difference is real-world latency on 60 image requests. Both are cited in
-`modernization-baseline.md`.
+### Production, mobile
+
+| | Before | After | |
+|---|---|---|---|
+| **LCP** | 45.58 s | **1.98 s** | target < 2.5 s ✅ |
+| **CLS** | 0.028 | **0.0003** | target < 0.1 ✅ |
+| **Transfer** | 13.17 MB | **0.88 MB** | −93% |
+| `load` event | 67.9 s | **5.7 s** | −92% |
+| Requests | 66 | 42 | |
+| Image requests | 60 | 32 | |
+| Image bytes | 13.06 MB | **0.66 MB** | −95% |
+| FCP | 1.71 s | 1.98 s | +0.28 s — see below |
+
+**FCP moved the wrong way, and that is deliberate.** The hero image and two
+fonts are now preloaded, so roughly 85 kB competes with the JS bundle for the
+first slice of bandwidth. That costs about a quarter-second of first paint and
+buys 43.6 seconds of LCP. On a page whose entire job is to show a photograph of
+a beautifully staged room, that is the right side of the trade — but it is a
+trade, not a free win.
+
+### Desktop
+
+| | Before | After | |
+|---|---|---|---|
+| **LCP** | 0.20 s | **0.08 s** | |
+| **CLS** | 0.008 | **0.0002** | |
+| **Transfer** | 6.78 MB | **0.87 MB** | −87% |
+
+*Desktop is a local-build-to-local-build comparison, served identically both
+times.* No production desktop baseline was captured before the old build was
+replaced, so quoting one would be inventing it. For reference, production
+desktop after deployment measures LCP 0.35 s / CLS 0.0001 / 0.87 MB — the gap
+from 0.08 s is network latency, not the page.
+
+### Everything else
+
+| | Before | After |
+|---|---|---|
+| Dependency advisories | 3 critical, 34 high, 24 mod, 4 low | **0** |
+| `pnpm test` | ✗ fails (1 stale test) | ✓ **16 pass** |
+| `pnpm lint` | ✗ fails (5 warnings) | ✓ passes |
+| Deploy gate | none | typecheck + lint + format + tests + audit + link check |
+| `App.tsx` | 1,411 lines | 43 lines across 11 section components |
+| Production dependencies | 9 | 3 |
 
 **Method.** Playwright + Chromium 151. LCP and CLS from `PerformanceObserver`,
 byte accounting from Resource Timing. Mobile profile: Pixel 5 (393×851, DPR 2),
 Slow-4G (1.6 Mbps, 150 ms RTT), 4× CPU throttle, median of three runs. Desktop:
-1440×900, DPR 1, unthrottled. Before and after use the identical harness and the
-identical gzip-serving preview server, so the numbers are comparable. Lighthouse
-was deliberately not used — see _Known limitations_.
+1440×900, DPR 1, unthrottled. Before and after use the identical harness, and
+each pair is measured against the same target — production-to-production for
+mobile, local-to-local for desktop. Lighthouse was deliberately not used — see
+_Known limitations_.
 
 ---
 
@@ -318,6 +349,39 @@ rendering is unchanged at all five viewports.
   present)
 
 ---
+
+## Post-deployment verification (2026-08-28)
+
+Deployed from merged `main` (`b4629f4`) via `pnpm run deploy`; live within ~60 s.
+Rollback point recorded before publishing: `gh-pages` @ `df81bb2` (2025-04-16),
+restorable with a single force-push.
+
+| Check | Result |
+|---|---|
+| Apex `https://spacelift.online/` | 200 |
+| `http://` apex | 301 → https |
+| `https://www.` | 301 → apex |
+| TLS certificate | valid, covers both hosts, expires 2026-10-27 |
+| `/og-image.jpg`, `/wordmark.png`, `/sitemap.xml`, `/robots.txt`, `/site.webmanifest`, favicons | all 200, correct content types |
+| Unknown path | 404 serving the **branded** page, not GitHub's default |
+| `fonts.googleapis.com` in HTML | gone |
+| `safari-pinned-tab.svg` | gone (was 404ing since March) |
+| Canonical, Open Graph, Twitter Card | all present |
+| Preload tags | 3 (hero AVIF + 2 fonts) |
+| Rendering vs local build at 320/390/768/1440/1920 px | 0.03–0.36% pixel delta (animation timing) |
+| Horizontal overflow | none at any viewport |
+| Structure | exactly one `h1`, `main` landmark present, 0 images missing alt or dimensions, no `tabindex="-1"` traps |
+| Browser console | clean |
+
+Interactive smoke test on live production, Pixel 5 emulation:
+
+- FAQ disclosure **opens with the keyboard** (focus + Enter) — it was unreachable
+  by keyboard before this engagement
+- Process step selector moves `aria-pressed` correctly when a later step is tapped
+- Carousel "next" enables "previous", and the two are now labelled distinctly
+- Mobile menu opens and closes; six links present
+- Contact form renders with its submit control enabled
+- Zero console errors throughout
 
 ## Remaining suggestions
 
