@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c '[ -n \"$WS_MISSION\" ] && [ -f \".missions/$WS_MISSION.md\" ] && cat \".missions/$WS_MISSION.md\" || true'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
