@@ -21,7 +21,8 @@ its own repo and its own mission when it starts.
 
 ## Needs Andrew
 Line format: `- [ ] NA-<key>-<n>: question | options: A) .. B) .. | writes: .. | due: YYYY-MM-DD | kind: decision|file|desk` (due and kind optional; kind defaults to decision). IDs are never reused; ticked lines stay in place with their ruling. Move old ones under `## Rulings archive` when this section gets long.
-- [ ] NA-clients-1: Craft market site: is it a go? | options: A) yes B) not before October C) drop it | writes: this file's Done list | kind: decision
+- [x] NA-clients-1: Craft market site: is it a go? | options: A) yes B) not before October C) drop it | writes: this file's Done list | kind: decision
+  -> Andrew 2026-09-12: (B) not before October. Don't start it yet.
 - [ ] NA-clients-2: Craft market site: first deliverable? | options: A) signup + payment page B) landing page only C) I'll describe it at the desk | writes: a new `~/dev/<repo>/.missions/<key>.md` | kind: decision
 - [ ] NA-clients-3: Craft market site: contact name and start date? | writes: the new mission file's Where state lives | kind: desk
 - [ ] NA-clients-4: Spacelift: set up the Google Business Profile Rose was offered? | options: A) yes, I will do it with her B) hand her the instructions C) skip | writes: `docs/session-handoff.md` owner items | kind: decision
