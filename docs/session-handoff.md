@@ -93,6 +93,7 @@ not score-chasing, and the honest list is short:
   exactly what a Google Business Profile provides — see below.
 - **Google Business Profile** is almost certainly worth more to this business
   than anything in the codebase. Out of our scope, worth saying once to the owner.
+  **2026-09-12 (Andrew, via Concierge):** skipping this — not pursuing setup with Rose.
 - Nothing else. The metadata, canonical, OG/Twitter, sitemap, robots and
   crawlability work is done and verified.
 

@@ -25,7 +25,8 @@ Line format: `- [ ] NA-<key>-<n>: question | options: A) .. B) .. | writes: .. |
   -> Andrew 2026-09-12: (B) not before October. Don't start it yet.
 - [ ] NA-clients-2: Craft market site: first deliverable? | options: A) signup + payment page B) landing page only C) I'll describe it at the desk | writes: a new `~/dev/<repo>/.missions/<key>.md` | kind: decision
 - [ ] NA-clients-3: Craft market site: contact name and start date? | writes: the new mission file's Where state lives | kind: desk
-- [ ] NA-clients-4: Spacelift: set up the Google Business Profile Rose was offered? | options: A) yes, I will do it with her B) hand her the instructions C) skip | writes: `docs/session-handoff.md` owner items | kind: decision
+- [x] NA-clients-4: Spacelift: set up the Google Business Profile Rose was offered? | options: A) yes, I will do it with her B) hand her the instructions C) skip | writes: `docs/session-handoff.md` owner items | kind: decision
+  -> Andrew 2026-09-12: (C) skip — not pursuing the Google Business Profile setup.
 - [ ] NA-clients-5: Spacelift: resume the held Cloudflare DNS cutover, or leave GitHub Pages as-is? | options: A) resume B) leave as-is C) revisit in 2027 | writes: `docs/session-handoff.md` owner items | kind: decision
 
 ## Resume ritual
