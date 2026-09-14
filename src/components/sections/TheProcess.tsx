@@ -189,9 +189,21 @@ export const TheProcess = () => {
         ))}
       </div>
 
+      {/*
+        `tabIndex={0}` because this scrolls. A scrollable region that cannot be
+        focused cannot be scrolled by anyone using a keyboard: the step buttons
+        above move between steps, but they are not a substitute for reaching
+        the region itself and panning it with the arrow keys. axe reports this
+        as `scrollable-region-focusable`, a serious WCAG 2.1.1 failure — and
+        Lighthouse's accessibility category does not run that rule, so this
+        site scored 100 there while the problem was live.
+      */}
       <div
         id="process-detail"
-        className="hide-scrollbar h-96 snap-x snap-mandatory overflow-x-scroll xl:h-75vh"
+        tabIndex={0}
+        role="group"
+        aria-label="Process step detail"
+        className={`hide-scrollbar h-96 snap-x snap-mandatory overflow-x-scroll xl:h-75vh ${focusRing}`}
         ref={containerRef}
       >
         <div className="flex h-full">
