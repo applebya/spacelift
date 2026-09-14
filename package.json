@@ -28,7 +28,9 @@
     "generate:brand-assets": "node tools/generate-social-image.mjs",
     "test:run": "vitest run",
     "check:links": "node tools/check-links.mjs dist",
-    "verify": "pnpm run typecheck && pnpm run lint && pnpm run format:check && pnpm run test:run"
+    "verify": "pnpm run typecheck && pnpm run test:run && pnpm run build && node --experimental-strip-types tools/verify.ts",
+    "perf": "node --experimental-strip-types tools/measure-perf.ts",
+    "a11y": "node --experimental-strip-types tools/audit-a11y.ts"
   },
   "dependencies": {
     "motion": "^11.15.0",
@@ -36,6 +38,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10",
     "@testing-library/jest-dom": "^7.0.1",
@@ -54,6 +57,7 @@
     "gh-pages": "^6.3.0",
     "globals": "^17.11.0",
     "happy-dom": "^20.11.12",
+    "playwright": "^1.63.0",
     "postcss": "^8.5.26",
     "prettier": "3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",
