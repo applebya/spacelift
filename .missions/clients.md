@@ -37,6 +37,19 @@ Line format: `- [ ] NA-<key>-<n>: question | options: A) .. B) .. | writes: .. |
      mail zone applies - export every existing record first, pre-stage MX, SPF/TXT, DKIM and autodiscover in
      Cloudflare, verify mail flow against the staged zone, and only then flip the nameservers. Do not flip first
      and reconcile after. If anything about the mail records is unclear, come back to Andrew before flipping.
+  -> Andrew 2026-09-18 **REVERSED, same day: (B) leave GitHub Pages as-is.** On learning the cutover would not
+     deliver a Lighthouse performance 100, he called it "a small optimization" not worth completing. The reasoning:
+     the cache-lifetimes finding is a Lighthouse *diagnostic*, not a scored audit, so fixing it adds no points; the
+     edge would only lower TTFB, which makes the existing median 99 reliable by removing the 84/82 origin-latency
+     outliers rather than reaching 100. The remaining point is LCP at 2.04 s and needs ~0.2 s, more than an edge
+     gives. Consistent with the handoff's own advice not to promise 100.
+     **Do not execute the cutover.** `infra/cloudflare/` (inventory, runbook, cache and transform rules) stays as
+     staged, unexecuted work in case this is ever revisited - the DNS inventory was re-verified live on 2026-09-18
+     and had not drifted since the 2026-08-27 capture. The client's Microsoft 365 email is untouched, which was
+     the original reason for holding.
+     Separately noted, owner's call, NOT part of this ruling: the zone's SPF is `include:secureserver.net -all`
+     (GoDaddy) rather than Microsoft's, so mail sent directly through M365 fails SPF, and there is no DKIM or
+     DMARC at all. Pre-existing, unrelated to hosting, worth raising with the client.
 
 ## Resume ritual
 1. Read `docs/session-handoff.md`.
