@@ -8,6 +8,7 @@ its own repo and its own mission when it starts.
 
 ## Done looks like
 - [ ] Spacelift invoice issued from the corp per the Corp Build ruling (NA-corp-build-1) and recorded in `~/dev-personal/corp/TODO.md` "New client work".
+      -> Andrew 2026-09-18: he will agree the invoice with Rose in person next time he sees her. No date set. Do not draft or send anything to her until he has had that conversation.
 - [ ] Craft market site: scope, contact, and first payment agreed; repo created under the Appleby-Web-Services GitHub org; mission file written; registered in `~/dev/worklife/sessions.json` with its own pane.
 - [ ] Spacelift repository work is complete; the two owner-side items in `docs/session-handoff.md` (Google Business Profile, the held Cloudflare DNS cutover) are each decided.
 
