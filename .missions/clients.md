@@ -27,7 +27,16 @@ Line format: `- [ ] NA-<key>-<n>: question | options: A) .. B) .. | writes: .. |
 - [ ] NA-clients-3: Craft market site: contact name and start date? | writes: the new mission file's Where state lives | kind: desk
 - [x] NA-clients-4: Spacelift: set up the Google Business Profile Rose was offered? | options: A) yes, I will do it with her B) hand her the instructions C) skip | writes: `docs/session-handoff.md` owner items | kind: decision
   -> Andrew 2026-09-12: (C) skip — not pursuing the Google Business Profile setup.
-- [ ] NA-clients-5: Spacelift: resume the held Cloudflare DNS cutover, or leave GitHub Pages as-is? | options: A) resume B) leave as-is C) revisit in 2027 | writes: `docs/session-handoff.md` owner items | kind: decision
+- [x] NA-clients-5: Spacelift: resume the held Cloudflare DNS cutover, or leave GitHub Pages as-is? | options: A) resume B) leave as-is C) revisit in 2027 | writes: `docs/session-handoff.md` owner items | kind: decision
+  -> Andrew 2026-09-18: **(A) resume the cutover.** Unblocks the `cache-insight` item (820 KiB) that cannot be
+     fixed in the repo - GitHub Pages pins `max-age=600` even on content-hashed assets - using the rules already
+     staged at `infra/cloudflare/cache-rules.md` (1-year immutable on `/assets/*`), and smooths the GitHub Pages
+     origin-latency variance noted in the handoff.
+     Execution note (Concierge, not a change to the ruling): the zone also carries the business's Microsoft 365
+     email, which is exactly why this was held on 2026-08-27. Standard practice for a nameserver move on a live
+     mail zone applies - export every existing record first, pre-stage MX, SPF/TXT, DKIM and autodiscover in
+     Cloudflare, verify mail flow against the staged zone, and only then flip the nameservers. Do not flip first
+     and reconcile after. If anything about the mail records is unclear, come back to Andrew before flipping.
 
 ## Resume ritual
 1. Read `docs/session-handoff.md`.
