@@ -219,7 +219,7 @@ describe('<App />', () => {
 
       expect(question).toHaveAttribute('aria-expanded', 'true')
       expect(screen.getByText(/one all-inclusive price/i)).toBeInTheDocument()
-      expect(screen.queryByText(/per hour/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/\$\d/)).not.toBeInTheDocument()
     })
   })
 
