@@ -72,13 +72,15 @@ export const FAQ = () => (
         Frequently Asked Questions
       </h2>
       <Question title="What are the rates for your services?">
-        Prices begin at $75.00 per hour (3 hour minimum). Jobs can vary
-        depending on your needs and requirements.
+        Every space is different, so we quote by the project, not by the hour.
+        Once we understand your space and goals, you receive one all-inclusive
+        price that covers our time and any supplies we agree on together. No
+        meter running and no surprise add-ons, however long the work takes.
       </Question>
       <Question title="Should I buy boxes, bins or containers?">
         These supplies can be costly but necessary. We are happy to work with
         items you may want to purchase or already have. Alternatively we can
-        provide any needed items for an additional fee.
+        provide any needed items, and they will be included in your quote.
       </Question>
       <Question title="Is Spacelift insured, certified and confidential?">
         Absolutely! Spacelift is fully insured and certified, ensuring top-notch
@@ -101,8 +103,8 @@ export const FAQ = () => (
         Your items can have a second chance and be rehomed and reused in a
         different project.
         <p className="mt-2 font-bold">RECYCLING, GARBAGE &amp; HAULING:</p>
-        We are happy to take it away but additional dump fees and rates may
-        apply.
+        We are happy to take it away, and any hauling or dump fees are built
+        into your project quote.
       </Question>
       <Question title="How long does a typical decluttering and space transformation take?">
         The time required depends on several factors, including the size of the

@@ -211,12 +211,15 @@ describe('<App />', () => {
         name: /what are the rates for your services\?/i
       })
 
-      expect(screen.queryByText(/\$75\.00 per hour/i)).not.toBeInTheDocument()
+      expect(
+        screen.queryByText(/one all-inclusive price/i)
+      ).not.toBeInTheDocument()
 
       await user.click(question)
 
       expect(question).toHaveAttribute('aria-expanded', 'true')
-      expect(screen.getByText(/\$75\.00 per hour/i)).toBeInTheDocument()
+      expect(screen.getByText(/one all-inclusive price/i)).toBeInTheDocument()
+      expect(screen.queryByText(/per hour/i)).not.toBeInTheDocument()
     })
   })
 
