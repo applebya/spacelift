@@ -72,12 +72,11 @@ export const FAQ = () => (
         Frequently Asked Questions
       </h2>
       <Question title="What are the rates for your services?">
-        Every space is different, so we price each job to suit it. Many projects
-        are best served by one all-inclusive price that covers our time and any
-        supplies we agree on together, with no meter running and no surprise
-        add-ons however long the work takes. For smaller or open-ended jobs, an
-        hourly rate can be the better fit. Either way, we recommend the right
-        option for your project and agree on it with you before we start.
+        Every space is different, so we tailor pricing to each project. Many are
+        quoted as one all-inclusive price covering our time and supplies, so you
+        know the full cost from the start. Smaller jobs may suit an hourly rate
+        instead. Either way, we&apos;ll recommend the best fit and agree on it
+        together before we begin.
       </Question>
       <Question title="Should I buy boxes, bins or containers?">
         These supplies can be costly but necessary. We are happy to work with
